@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { StoreEnhancer, Action } from 'redux'
 import { createComposer } from './composeWithStateSync'
 import { RendererStateSyncEnhancerOptions } from './options/RendererStateSyncEnhancerOptions'
@@ -6,10 +6,10 @@ import { StateSyncOptions } from './options/StateSyncOptions'
 import { fetchInitialState } from './renderer/fetchInitialState'
 import { fetchInitialStateAsync } from './renderer/fetchInitialStateAsync'
 import { forwardActionToMain } from './renderer/forwardActionToMain'
-import { subscribeToIPCAction } from './renderer/subscribeToIPCAction'
 import { preventDoubleInitialization, stopForwarding } from './utils'
 import { forwardAction } from './utils/forwardAction'
 import { withStoreReplacer, replaceState } from './utils/replaceState'
+import { IPCEvents } from './constants'
 
 declare global {
     interface Bridge {
@@ -30,7 +30,8 @@ const stateSyncEnhancer = (options: RendererStateSyncEnhancerOptions = {}): Stor
 
     return (reducer, state) => {
         const initialState = options.lazyInit ? state : fetchInitialState<typeof state>(options)
-
+        
+        
         const store = createStore(
             options.lazyInit ? withStoreReplacer(reducer) : reducer,
             initialState
@@ -43,7 +44,25 @@ const stateSyncEnhancer = (options: RendererStateSyncEnhancerOptions = {}): Stor
         }
 
         // When receiving an action from main
-        subscribeToIPCAction((action: Action) => store.dispatch(stopForwarding(action)))
+        ipcRenderer.on(IPCEvents.ACTION, (_, actionJson: string) => {
+            const action: Action = JSON.parse(actionJson)
+            const action1 = stopForwarding(action)
+            console.log("electron-redux: RECEIVED ACTION", action.type)
+
+            console.time("garbageCollection")
+            window.gc?.()
+            console.timeEnd("garbageCollection")
+
+            console.time('dispatch')
+            console.log("BEGIN dispatchEnter", Date.now())
+            store.dispatch(action1)
+            console.log("END dispatchExit", Date.now())
+            console.timeEnd('dispatch')
+            // @ts-ignore
+            window.actionJson = actionJson
+            // @ts-ignore
+            window.action1 = action1
+        })
 
         return forwardAction(store, forwardActionToMain, options)
     }
@@ -69,3 +88,5 @@ export const preload = (): void => {
 
 // run it!
 preload()
+
+//# sourceURL=electronReduxPreload.js

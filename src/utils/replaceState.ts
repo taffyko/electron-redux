@@ -1,4 +1,4 @@
-import { AnyAction, Reducer } from 'redux'
+import { Reducer, UnknownAction } from 'redux'
 import { FluxStandardAction } from './isFSA'
 import { ActionMeta } from '.'
 
@@ -19,8 +19,8 @@ export const replaceState = <S>(state: S): ReplaceStateAction<S> => ({
     meta: { scope: 'local' },
 })
 
-export const withStoreReplacer = <S, A extends AnyAction>(reducer: Reducer<S, A>) => (
-    state: S | undefined,
+export const withStoreReplacer = <S, A extends UnknownAction, PreloadedState = S>(reducer: Reducer<S, A, PreloadedState>): Reducer<S, A, PreloadedState> => (
+    state: S | PreloadedState | undefined,
     action: A
 ): S => {
     switch (action.type) {

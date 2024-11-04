@@ -25,6 +25,7 @@ export const validateAction = (
     // Actions that we should never replay across stores
     denyList: RegExp[] = [/^@@/, /^redux-form/]
 ): action is FluxStandardAction<ActionMeta> => {
+    console.log("electron-redux: validating action", action.type)
     return (
         isFSA(action) &&
         action.meta?.scope !== 'local' &&

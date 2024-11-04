@@ -8,10 +8,16 @@ export const forwardActionToRenderers = <A>(
     options: MainStateSyncEnhancerOptions = {}
 ): void => {
     if (validateAction(action, options.denyList)) {
+        let json: {} | null = null
         webContents.getAllWebContents().forEach((contents) => {
             // Ignore chromium devtools
             if (contents.getURL().startsWith('devtools://')) return
-            contents.send(IPCEvents.ACTION, action)
+            if (contents.getURL().startsWith('chrome-extension://')) return
+            if (json === null) {
+                json = JSON.stringify(action)
+            }
+            console.log("electron-redux: SENDING TO RENDERER", contents.getURL(), action.type)
+            contents.send(IPCEvents.ACTION, json)
         })
     }
 }

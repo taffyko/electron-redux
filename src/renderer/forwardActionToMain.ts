@@ -8,6 +8,7 @@ export const forwardActionToMain = <A>(
     options: RendererStateSyncEnhancerOptions = {}
 ): void => {
     if (validateAction(action, options.denyList)) {
-        ipcRenderer.send(IPCEvents.ACTION, action)
+        console.log("electron-redux: SENDING ACTION TO MAIN", action.type)
+        ipcRenderer.send(IPCEvents.ACTION, JSON.stringify(action))
     }
 }
