@@ -30,9 +30,9 @@ export const stateSyncEnhancer = (options: MainStateSyncEnhancerOptions = {}): S
         })
 
         // When receiving an action from a renderer
-        ipcMain.on(IPCEvents.ACTION, (event, action: Action) => {
+        ipcMain.on(IPCEvents.ACTION, (event, actionJson: string) => {
+            const action: Action = JSON.parse(actionJson)
             const localAction = stopForwarding(action)
-
             store.dispatch(localAction)
 
             // Forward it to all of the other renderers
@@ -40,9 +40,10 @@ export const stateSyncEnhancer = (options: MainStateSyncEnhancerOptions = {}): S
                 // Ignore the renderer that sent the action and chromium devtools
                 if (
                     contents.id !== event.sender.id &&
-                    !contents.getURL().startsWith('devtools://')
+                    !contents.getURL().startsWith('devtools://') &&
+                    !contents.getURL().startsWith('chrome-extension://')
                 ) {
-                    contents.send(IPCEvents.ACTION, localAction)
+                    contents.send(IPCEvents.ACTION, actionJson)
                 }
             })
         })
