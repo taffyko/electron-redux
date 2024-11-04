@@ -1,0 +1,63 @@
+{
+    "name": "electron-redux",
+    "version": "0.0.0-dev.0",
+    "description": "Redux & Electron: Make sure all your stores are on the same page",
+    "repository": "https://github.com/klarna/electron-redux.git",
+    "authors": [
+        "Burkhard Reffeling <burkhard.reffeling@klarna.com> (https://github.com/hardchor)",
+        "McKayla Washburn <mckayla@hey.com> (https://github.com/partheseas)",
+        "Maciej Malkowski <maciej.malkowski@klarna.com> (https://github.com/matmalkowski)"
+    ],
+    "license": "MIT",
+    "private": false,
+    "main": "lib/index.js",
+    "module": "es/index.js",
+    "types": "types/index.d.ts",
+    "files": [
+        "lib",
+        "es",
+        "types",
+        "main",
+        "renderer",
+        "preload"
+    ],
+    "scripts": {
+        "clean": "rimraf lib es coverage types",
+        "build": "rollup -c",
+        "build:examples": "run-p build:examples:*",
+        "build:examples:basic": "cd ./examples/basic && yarn",
+        "check-types": "tsc --noEmit",
+        "test": "jest",
+        "lint": "eslint . --ext .ts",
+        "format": "prettier --write .",
+        "pretest": "yarn build && yarn build:examples",
+        "commit": "cz"
+    },
+    "dependencies": {
+        "lodash.isplainobject": "^4.0.6",
+        "lodash.isstring": "^4.0.1"
+    },
+    "peerDependencies": {
+        "electron": ">=31.0.0",
+        "redux": ">=5.0.0"
+    },
+    "npmName": "electron-redux",
+    "jest": {
+        "testRegex": "(/tests/.*\\.spec\\.[tj]s)$"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
+    },
+    "sideEffects": false,
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    },
+    "yalcSig": "ac1a19868c49e16398197766c35b25f9"
+}
