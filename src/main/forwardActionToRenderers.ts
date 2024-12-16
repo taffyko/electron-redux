@@ -8,15 +8,19 @@ export const forwardActionToRenderers = <A>(
     options: MainStateSyncEnhancerOptions = {}
 ): void => {
     if (validateAction(action, options.denyList)) {
-        let json: {} | null = null
+        let value: unknown = null
         webContents.getAllWebContents().forEach((contents) => {
             // Ignore chromium devtools
             if (contents.getURL().startsWith('devtools://')) return
             if (contents.getURL().startsWith('chrome-extension://')) return
-            if (json === null) {
-                json = JSON.stringify(action)
+            if (value === null) {
+                value = action
+                try {
+                    value = JSON.stringify(action)
+                } catch {}
+        
             }
-            contents.send(IPCEvents.ACTION, json)
+            contents.send(IPCEvents.ACTION, value)
         })
     }
 }

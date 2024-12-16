@@ -45,7 +45,7 @@ const stateSyncEnhancer = (options: RendererStateSyncEnhancerOptions = {}): Stor
 
         // When receiving an action from main
         ipcRenderer.on(IPCEvents.ACTION, (_, actionJson: string) => {
-            const action: Action = JSON.parse(actionJson)
+            const action: Action = typeof actionJson === 'string' ? JSON.parse(actionJson) : actionJson
             const action1 = stopForwarding(action)
 
             store.dispatch(action1)

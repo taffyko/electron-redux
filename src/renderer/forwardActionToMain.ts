@@ -8,6 +8,11 @@ export const forwardActionToMain = <A>(
     options: RendererStateSyncEnhancerOptions = {}
 ): void => {
     if (validateAction(action, options.denyList)) {
-        ipcRenderer.send(IPCEvents.ACTION, JSON.stringify(action))
+        let value: unknown = action
+        try {
+            value = JSON.stringify(action)
+        } catch {}
+
+        ipcRenderer.send(IPCEvents.ACTION, value)
     }
 }

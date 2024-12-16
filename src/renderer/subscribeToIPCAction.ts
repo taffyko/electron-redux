@@ -5,7 +5,7 @@ import { IPCEvents } from 'src/constants'
 export const subscribeToIPCAction = (callback: (action: Action) => void): void => {
     // TODO: avoid parsing more than once even if subscribed multiple times
     ipcRenderer.on(IPCEvents.ACTION, (_, actionJson: string) => {
-        const action: Action = JSON.parse(actionJson)
+        const action: Action = typeof actionJson === 'string' ? JSON.parse(actionJson) : actionJson
         callback(action)
     })
 }

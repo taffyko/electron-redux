@@ -7,4 +7,5 @@ export interface MainStateSyncEnhancerOptions extends StateSyncOptions {
      * the nested objects are transformed before the parent object is.
      */
     serializer?: (this: unknown, key: string, value: unknown) => unknown
+    excludedSlices?: string[]
 }

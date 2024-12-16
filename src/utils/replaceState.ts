@@ -25,7 +25,7 @@ export const withStoreReplacer = <S, A extends UnknownAction, PreloadedState = S
 ): S => {
     switch (action.type) {
         case REPLACE_STATE:
-            return (action as any).payload
+            return { ...state, ...(action as any).payload }
         default:
             return reducer(state, action)
     }

@@ -22,16 +22,24 @@ export const stateSyncEnhancer = (options: MainStateSyncEnhancerOptions = {}): S
         const store = createStore(reducer, preloadedState)
 
         ipcMain.handle(IPCEvents.INIT_STATE_ASYNC, async () => {
-            return JSON.stringify(store.getState(), options.serializer)
+            const state = { ...store.getState() }
+            for (const key of options.excludedSlices ?? []) {
+                delete state[key as keyof typeof state]
+            }
+            return JSON.stringify(state, options.serializer)
         })
 
         ipcMain.on(IPCEvents.INIT_STATE, (event) => {
-            event.returnValue = JSON.stringify(store.getState(), options.serializer)
+            const state = { ...store.getState() }
+            for (const key of options.excludedSlices ?? []) {
+                delete state[key as keyof typeof state]
+            }
+            event.returnValue = JSON.stringify(state, options.serializer)
         })
 
         // When receiving an action from a renderer
         ipcMain.on(IPCEvents.ACTION, (event, actionJson: string) => {
-            const action: Action = JSON.parse(actionJson)
+            const action: Action = typeof actionJson === 'string' ? JSON.parse(actionJson) : actionJson
             const localAction = stopForwarding(action)
             store.dispatch(localAction)
 
